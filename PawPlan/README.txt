@@ -1,5 +1,0 @@
-Have you ever brought home a new pet, stared at them, and thought: "How in the world do I take care of you?" The internet is flooded with conflicting advice, generic care sheets, and endless forum posts. PawPlan fixes that. You type in your pet's exact type, age and weight, and it instantly generates a custom care guide tailored to their individual needs, saving new owners time, money, and anxiety.
-
-PawPlan addresses several core focus areas of AnimalHack 2026, including Educating the public by providing accessible information on responsible pet care, Improving Animal Welfare by helping prevent health issues like pet obesity, and Post-Adoption/Foster Support by offering a tool for new adopters to take better care of their pets.
-
-Made using Python, Streamlit, and Google Gemini through their API, to format answers.
