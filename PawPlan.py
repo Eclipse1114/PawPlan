@@ -89,22 +89,3 @@ if submitted:
             for message in st.session_state.messages:
                 with st.chat_message(message["role"]):
                     st.markdown(message["content"])
-
-            # Follow-up Chat Input
-            if st.session_state.chat_session:
-                if user_question := st.chat_input("Ask a follow-up question about this care plan..."):
-        
-                    # Show and save user follow-up
-                    with st.chat_message("user"):
-                        st.markdown(user_question)
-                    st.session_state.messages.append({"role": "user", "content": user_question})
-
-                    # Get response from model
-                    with st.chat_message("assistant"):
-                        with st.spinner("Thinking..."):
-                            try:
-                                response = st.session_state.chat_session.send_message(user_question)
-                                st.markdown(response.text)
-                                st.session_state.messages.append({"role": "assistant", "content": response.text})
-                            except Exception as e:
-                                st.error(f"Error getting response: {e}")
