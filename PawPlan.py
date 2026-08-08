@@ -84,3 +84,6 @@ if submitted:
                 st.error(f"Gemini API Error: {e.message}")
             except Exception as e:
                 st.error(f"An unexpected error occurred: {e}")
+
+            for message in st.session_state.messages:
+                st.markdown(message["content"])
