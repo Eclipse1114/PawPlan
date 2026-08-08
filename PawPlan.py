@@ -84,8 +84,3 @@ if submitted:
                 st.error(f"Gemini API Error: {e.message}")
             except Exception as e:
                 st.error(f"An unexpected error occurred: {e}")
-
-            # Render chat history
-            for message in st.session_state.messages:
-                with st.chat_message(message["role"]):
-                    st.markdown(message["content"])
