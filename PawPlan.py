@@ -52,7 +52,7 @@ if submitted:
         
         # Start a fresh chat session with instructions
         st.session_state.chat_session = client.chats.create(
-            model="gemini-2.5-flash",
+            model="gemini-3.5-flash",
             config={
                 "system_instruction": "Act as a veterinarian providing practical pet care advice. Keep answers helpful and concise."
             }
