@@ -5,7 +5,7 @@ from google.genai import errors
 st.set_page_config(page_title="PawPlan", page_icon="🐾")
 
 st.title("PawPlan 🐾")
-st.write("Generate a quick care routine tailored to your pet's age and weight.")
+st.write("Generate a quick care routine tailored to your pet's age and weight, and ask follow-up questions.")
 
 # Ensure API key is present in st.secrets
 if "GEMINI_API_KEY" not in st.secrets:
@@ -14,6 +14,17 @@ if "GEMINI_API_KEY" not in st.secrets:
     )
     st.stop()
 
+# Initialize API Client
+client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+
+# Initialize session state variables
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+if "chat_session" not in st.session_state:
+    st.session_state.chat_session = None
+
+# Form to input pet details
 with st.form("pet_form"):
     pet_type = st.text_input(
         "Pet Species / Breed", placeholder="e.g., Golden Retriever, Bearded Dragon"
@@ -31,46 +42,69 @@ with st.form("pet_form"):
 
     submitted = st.form_submit_button("Generate Care Plan")
 
+# Reset memory and start a fresh plan when form is submitted
 if submitted:
     if not pet_type.strip():
         st.warning("Please specify the type of pet.")
     else:
+        # Clear previous session data automatically when searching a new plan
+        st.session_state.messages = []
+        
+        # Start a fresh chat session with instructions
+        st.session_state.chat_session = client.chats.create(
+            model="gemini-2.5-flash",
+            config={
+                "system_instruction": "Act as a veterinarian providing practical pet care advice. Keep answers helpful and concise."
+            }
+        )
+
+        prompt = f"""
+        Build a realistic, practical daily care guide for:
+        - Pet: {pet_type}
+        - Weight: {weight} lbs
+        - Age: {age} years
+
+        Cover these areas briefly using markdown headers:
+        1. Daily Food & Water Portions
+        2. Recommended Exercise / Activity
+        3. Essential Supplies
+        4. Common Breed / Species Health Considerations
+
+        End with a short medical disclaimer.
+        """
+
         with st.spinner("Building plan..."):
             try:
-                # Initialize client inside the submission handler
-                client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-
-                prompt = f"""
-                Act as a veterinarian. Build a realistic, practical daily care guide for:
-                - Pet: {pet_type}
-                - Weight: {weight} lbs
-                - Age: {age} years
-
-                Cover these areas briefly using markdown headers:
-                1. Daily Food & Water Portions
-                2. Recommended Exercise / Activity
-                3. Essential Supplies
-                4. Common Breed / Species Health Considerations
-
-                End with a short medical disclaimer.
-                """
-
-                # Call model
-                response = client.models.generate_content(
-                    model="gemini-3.5-flash", contents=prompt
-                )
-
-                st.subheader(f"Care Guide for {pet_type}")
-                st.markdown(response.text)
-
-                st.download_button(
-                    label="📥 Download Care Plan",
-                    data=response.text,
-                    file_name=f"{pet_type.replace(' ', '_')}_Care_Plan.md",
-                    mime="text/markdown",
-                )
-
+                response = st.session_state.chat_session.send_message(prompt)
+                
+                # Save initial plan as first message
+                st.session_state.messages.append({"role": "assistant", "content": response.text})
+            
             except errors.APIError as e:
                 st.error(f"Gemini API Error: {e.message}")
             except Exception as e:
                 st.error(f"An unexpected error occurred: {e}")
+
+# Render chat history
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+# Follow-up Chat Input
+if st.session_state.chat_session:
+    if user_question := st.chat_input("Ask a follow-up question about this care plan..."):
+        
+        # Show and save user follow-up
+        with st.chat_message("user"):
+            st.markdown(user_question)
+        st.session_state.messages.append({"role": "user", "content": user_question})
+
+        # Get response from model
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                try:
+                    response = st.session_state.chat_session.send_message(user_question)
+                    st.markdown(response.text)
+                    st.session_state.messages.append({"role": "assistant", "content": response.text})
+                except Exception as e:
+                    st.error(f"Error getting response: {e}")
