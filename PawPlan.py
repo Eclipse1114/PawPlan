@@ -67,5 +67,3 @@ if submitted:
                 st.error(f"Gemini API Error: {e.message}")
             except Exception as e:
                 st.error(f"An unexpected error occurred: {e}")
-            st.subheader(f"Care Guide for {pet_type}")
-            st.markdown(response.text)
