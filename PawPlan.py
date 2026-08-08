@@ -43,10 +43,8 @@ if submitted:
 
             End with a short medical disclaimer.
             """
-
-            # Using current Gemini 2.0 Flash model
             response = client.models.generate_content(
-                model="gemini-2.0-flash",
+                model="gemini-2.5-flash",
                 contents=prompt
             )
 
