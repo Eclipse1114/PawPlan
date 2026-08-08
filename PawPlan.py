@@ -63,6 +63,13 @@ if submitted:
                 st.subheader(f"Care Guide for {pet_type}")
                 st.markdown(response.text)
 
+                st.download_button(
+                    label="📥 Download Care Plan",
+                    data=response.text,
+                    file_name=f"{pet_type.replace(' ', '_')}_Care_Plan.md",
+                    mime="text/markdown",
+                )
+
             except errors.APIError as e:
                 st.error(f"Gemini API Error: {e.message}")
             except Exception as e:
