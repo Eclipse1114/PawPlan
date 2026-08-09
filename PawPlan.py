@@ -54,6 +54,64 @@ if submitted:
                 contents.append(Image.open(pet_image))
             
             response = client.models.generate_content(
+                model="gemini-3.5-flash",
+                contents=contents,
+            )
+            
+            # Store initial response in session state
+            st.session_state.chat_history = [{"role": "model", "text": response.text}]
+            st.session_state.plan_generated = True
+
+# Display plan and allow follow-up chat if generated
+if st.session_state.plan_generated:
+    st.success("Here is your custom plan!")
+    
+    # Render chat history
+    for message in st.session_state.chat_history:
+        with st.chat_message(message["role"]):
+            st.markdown(message["text"])
+
+    # Follow-up question input
+    if user_question := st.chat_input("Ask a follow-up question about the plan..."):
+        st.session_state.chat_history.append({"role": "user", "text": user_question})
+        with st.chat_message("user"):
+            st.markdown(user_question)
+            
+        with st.spinner("Thinking..."):
+            client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+            
+            # Build simple context from past messages
+            context = "\n".join([f"{m['role']}: {m['text']}" for m in st.session_state.chat_history])
+            followup_prompt = f"You are an expert Veterinarian continuing this consultation:\n{context}\n\nAnswer the user's latest question concisely."
+            
+            response = client.models.generate_content(
+                model="gemini-3.5-flash",
+                contents=followup_prompt,
+            )
+            
+            reply = response.text
+            st.session_state.chat_history.append({"role": "model", "text": reply})
+            with st.chat_message("model"):
+                st.markdown(reply)            You are an expert Veterinarian. Give a clear, concise, and structured plan for taking care of a pet using the following details.
+
+            Pet weight: {weight} lbs
+            Animal type: {pet_type}
+            Age: {age} years old
+
+            Give as many details as possible on:
+            - Daily food and water portions.
+            - Recommended daily exercise and playtime.
+            - Suggested stores to buy supplies (e.g., local pet stores, Petco, Chewy, Walmart).
+            
+            Keep the tone warm, helpful, and professional. Add a brief medical disclaimer at the end.
+            """
+            
+            # Bundle prompt and optional image for multimodal input
+            contents = [prompt]
+            if pet_image is not None:
+                contents.append(Image.open(pet_image))
+            
+            response = client.models.generate_content(
                 model="gemini-2.5-flash",
                 contents=contents,
             )
