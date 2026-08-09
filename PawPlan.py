@@ -206,14 +206,14 @@ if st.session_state.plan_generated:
             followup_prompt = f"You are an expert Veterinarian continuing this consultation:\n{context}\n\nAnswer the user's latest question concisely."
             
             response = client.models.generate_content(
-                model="gemini-2.5-flash",
+                model="gemini-3.5-flash",
                 contents=followup_prompt,
             )
             
             reply = response.text
             st.session_state.chat_history.append({"role": "model", "text": reply})
             with st.chat_message("model"):
-                st.markdown(reply)        )
+                st.markdown(reply)
     with col2:
         weight = st.number_input(
             "Weight (Lbs)", min_value=0.1, max_value=500.0, value=10.0, step=0.5
