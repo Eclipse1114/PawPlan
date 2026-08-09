@@ -3,3 +3,5 @@ The internet is flooded with conflicting advice, generic care sheets, and endles
 You type in your pet's exact type, age and weight, or even just an image, and it instantly generates a custom care guide tailored to their individual needs, saving new owners time, money, and anxiety.
 
 Made using Python, Streamlit, PIL for image uploads, and Google Gemini through their API, to format answers.
+
+Current link: https://pawplan.streamlit.app/
