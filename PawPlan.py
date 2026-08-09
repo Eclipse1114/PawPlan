@@ -108,7 +108,7 @@ Answer the user's latest question concisely."""
             with st.chat_message("model"):
                 st.markdown(reply)            
                 contents=followup_prompt,
-            )
+            
             
             reply = response.text
             st.session_state.chat_history.append({"role": "model", "text": reply})
